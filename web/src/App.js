@@ -3,7 +3,6 @@ import axios from 'axios';
 
 const RecordButton = () => {
   const [recording, setRecording] = useState(false);
-  const [audioUrl, setAudioUrl] = useState(null);
   const mediaRecorderRef = useRef(null);
 
   const startRecording = async () => {
@@ -29,8 +28,21 @@ const RecordButton = () => {
   const handleDataAvailable = async (event) => {
     if (event.data.size > 0) {
       const audioBlob = new Blob([event.data], { type: 'audio/wav' });
-      const audioUrl = URL.createObjectURL(audioBlob);
-      setAudioUrl(audioUrl);
+  
+      const formData = new FormData();
+      formData.append('audioFile', audioBlob, 'recording.wav');
+  
+      try {
+        const response = await axios.post('http://localhost:8000/upload-audio', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+  
+        console.log('오디오 파일이 성공적으로 전송되었습니다:', response.data);
+      } catch (error) {
+        console.error('오류 발생:', error);
+      }
     }
   };
 
@@ -39,7 +51,6 @@ const RecordButton = () => {
       <button onClick={recording ? stopRecording : startRecording}>
         {recording ? '녹음 중지' : '녹음 시작'}
       </button>
-      {audioUrl && <a href={audioUrl} download="recording.wav">다운로드</a>}
     </div>
   );
 };
