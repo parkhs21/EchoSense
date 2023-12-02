@@ -1,6 +1,15 @@
 from fastapi import FastAPI, File, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"], # 클라이언트 도메인에 대해 CORS 허용
+    allow_credentials=True,
+    allow_methods=["*"], # 모든 HTTP 메소드에 대해 CORS 허용
+    allow_headers=["*"], # 모든 HTTP 헤더에 대해 CORS 허용
+)
 
 @app.get("/")
 def read_root():

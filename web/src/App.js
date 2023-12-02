@@ -39,7 +39,7 @@ const RecordButton = () => {
           }
         });
   
-        console.log('오디오 파일이 성공적으로 전송되었습니다:', response.data);
+        console.log('오디오 파일이 성공적으로 전송되었습니다:', response);
       } catch (error) {
         console.error('오류 발생:', error);
       }
