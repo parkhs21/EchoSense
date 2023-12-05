@@ -41,7 +41,7 @@ def get_place_details(place_id, api_key):
 def call_google_place_api(user_id, place_type, food_preference=None):
     try:
         customer_profile = fetch_customer_profile(user_id)
-        
+        #
         lat = customer_profile["location"]["lat"]
         lng = customer_profile["location"]["long"]
         
@@ -135,7 +135,7 @@ def provide_user_specific_recommendations(user_input, user_id):
             place_type = json.loads(function_call.arguments)["place_type"]
             places = call_google_place_api(user_id, place_type, food_preferences)
             if places:
-                return f"당신이 관심있을 것 같은 장소는 {' '.join(places)}입니다."
+                return f"제가 추천드리는 장소는 {' '.join(places)}입니다."
             else:
                 return "죄송합니다. 장소를 찾을 수 없습니다."
             

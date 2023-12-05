@@ -5,9 +5,9 @@ from langchain.embeddings import OpenAIEmbeddings
 from langchain.chat_models.openai import ChatOpenAI
 from langchain.utilities import GoogleSearchAPIWrapper
 
-os.environ["OPENAI_API_KEY"] = "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"
-os.environ["GOOGLE_CSE_ID"] = "f23f31fe730d14cb9"
-os.environ["GOOGLE_API_KEY"] = "AIzaSyC0RcGolyYn7ZoWM2eAPNWXnf-Wm46RDCc"
+os.environ["OPENAI_API_KEY"] = "sk-xxx"
+os.environ["GOOGLE_CSE_ID"] = "xxx"
+os.environ["GOOGLE_API_KEY"] = "xxx-xxx"
 
 vector_store = Chroma(embedding_function=OpenAIEmbeddings(),
                       persist_directory="./chroma_db_oai")
