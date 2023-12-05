@@ -1,9 +1,10 @@
-from fastapi import FastAPI
+from app.myTool import contentTool, chainTool
+
+from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.responses import RedirectResponse
-from langchain.prompts import ChatPromptTemplate
-from langchain.chat_models import ChatOpenAI
 from fastapi.middleware.cors import CORSMiddleware
 from langserve import add_routes
+
 import dotenv
 dotenv.load_dotenv()
 
@@ -25,27 +26,21 @@ app.add_middleware(
 async def redirect_root_to_docs():
     return RedirectResponse("/docs")
 
-model = ChatOpenAI()
-prompt = ChatPromptTemplate.from_template("tell me a joke about {topic}")
-add_routes(
-    app,
-    prompt | model,
-    path="/joke",
-)
+@app.post("/upload")
+async def upload_file(content: UploadFile = File(...)):
+    file_path = contentTool.cache_file(content)
+    transcript = contentTool.prompt_stt(file_path)
+    return {"transcript": transcript}
 
-add_routes(
-    app,
-    ChatOpenAI(),
-    path="/chat",
-)
+@app.post("/upload-image")
+async def upload_file(content: UploadFile = File(...), prompt: str = Form(...)):
+    file_path = contentTool.cache_file(content)
+    response = contentTool.prompt_image(file_path, prompt)
+    return {"output": response}
 
 
-model_vision = ChatOpenAI(model="gpt-3.5-vision")
-add_routes(
-    app,
-    model_vision,
-    path="/echosense",
-)
+add_routes(app, chainTool.chat_chain, path="/prompt-chat")
+# add_routes(app, chainTool.image_chain, path="/prompt-image")
 
 
 if __name__ == "__main__":
