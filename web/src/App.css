@@ -1,17 +1,45 @@
-.App {
-  text-align: center;
+.container{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
 }
 
-.record_button {
+.title {
+  margin: 20px;
+  font-size: 35px;
+  font-weight: 900;
+}
+
+.btn {
+  margin: 40px;
   padding: 10px 20px;
-  background-color: #4CAF50;
+  background-color: black;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   font-size: 16px;
+  font-weight: 600;
 }
 
-.record-button:hover {
+.btn:hover {
   background-color: #45a049;
+}
+
+.btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.webcam {
+  border-radius: 10px;
+  transform: scaleX(-1);
+}
+
+.emptyBox {
+  background-color: #cccccc;
+  height: 480px;
+  width: 640px;
+  border-radius: 10px;
 }
