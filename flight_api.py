@@ -1,8 +1,14 @@
 import os
+from dotenv import load_dotenv
+from pathlib import Path
 
-os.environ["AMADEUS_CLIENT_ID"] = "xxx"
-os.environ["AMADEUS_CLIENT_SECRET"] = "xxx"
-os.environ["OPENAI_API_KEY"] = "sk-xxx"
+load_dotenv()
+env_path = Path('.') / '.env'
+load_dotenv(dotenv_path=env_path)
+
+os.getenv("OPENAI_API_KEY")
+os.getenv("AMADEUS_CLIENT_ID")
+os.getenv("AMADEUS_CLIENT_SECRET")
 
 from langchain.agents.agent_toolkits.amadeus.toolkit import AmadeusToolkit
 
@@ -20,4 +26,5 @@ agent = initialize_agent(
     agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION,
 )
 
-agent.run("What is the departure time of the cheapest flight on August 23, 2023 leaving Dallas, Texas before noon to Lincoln, Nebraska?")
+a = agent.run("What is the departure time of the cheapest flight on December 23, 2023 leaving Dallas, Texas before noon to Lincoln, Nebraska?")
+print(a)

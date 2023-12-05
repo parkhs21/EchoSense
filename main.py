@@ -56,9 +56,6 @@ def call_google_place_api(user_id, place_type, food_preference=None):
             url = f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?location={LOCATION}&radius={RADIUS}&type={TYPE}&language=ko&key={API_KEY}"
         response = requests.get(url)
         
-        #장소 기반 추천
-        
-        
         if response.status_code == 200:
             results = json.loads(response.content)["results"]
             places = []

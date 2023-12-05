@@ -85,7 +85,7 @@ class Agent(object):
     def __init__(
         self,
         open_ai_api_key,
-        model="gpt-3.5-turbo",
+        model="gpt-4-1106-preview",
         temperature=0,
         debug=True,
     ):
@@ -212,9 +212,9 @@ secrets = load_secret()
 travel_agent = Agent(open_ai_api_key=secrets['OPENAI_API_KEY'],debug=True)
 
 query = """
-        제주도에서 3박 4일 여행을 계획하고 있습니다. 한라산을 등반하고 싶고, 제주도의 맛집도 가고 싶습니다.
+        제주도에서 3박 4일 여행을 계획하고 있습니다. 한라산을 등반하고 싶습니다. 제주도 해변도 가고 싶습니다.
         """
 
-a, b = travel_agent.suggest_travel(query)
-print(a)
-print(b)
+plan, validation_result = travel_agent.suggest_travel(query)
+print(plan)
+print(validation_result)
