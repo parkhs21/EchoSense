@@ -30,12 +30,13 @@ from pydantic import BaseModel, Field
 
 #유효성 검사
 class Validation(BaseModel):
-    plan_is_valid: str = Field(description="일정이 유효하면 'True', 유효하지 않으면 'False'를 반환합니다.")
-    updated_request: str = Field(description="유효하지 않은 일정을 수정한 새로운 일정을 반환합니다.")
+    plan_is_valid: str = Field(description="일정이 유효하면 'yes', 유효하지 않으면 'no'를 반환합니다.")
+    updated_request: str = Field(description="새로운 일정을 반환합니다.")
 
 class ValidationTemplate(object):
     def __init__(self):
-        self.system_template = """사용자가 흥미로운 여행 계획을 세울 수 있도록 도와주는 agent입니다.
+        self.system_template = """
+        사용자가 흥미로운 여행 계획을 세울 수 있도록 도와주는 agent입니다.
 
       사용자의 요청은 4개의 해시태그로 표시됩니다. 사용자의 요청이 설정한 제약 조건 내에서
       요청이 합리적이고 사용자가 설정한 제약 조건 내에서 달성 가능한지 판단합니다.
@@ -51,8 +52,10 @@ class ValidationTemplate(object):
 
       요청이 타당하다고 판단되면 plan_is_valid = 1로 설정하고
       요청을 수정하지 마세요.
-      {format_instruction}"""
-        self.human_template = """{query}"""
+      
+      {format_instruction}
+      """
+        self.human_template = """####{query}####"""
         
         self.parser = PydanticOutputParser(pydantic_object=Validation)
         
@@ -68,7 +71,6 @@ class ValidationTemplate(object):
         
         self.chat_prompt = ChatPromptTemplate.from_messages([self.system_message_prompt,self.human_message_prompt])
         
-
 import openai
 import logging
 import time
@@ -88,6 +90,8 @@ class Agent(object):
         debug=True,
     ):
         self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.INFO)
+        
         self._openai_key = open_ai_api_key
         self.chat_model = ChatOpenAI(model=model,
                                      temperature=temperature,
@@ -99,7 +103,6 @@ class Agent(object):
         self.agent_chain = self._set_up_agent_chain(debug)
         
     def _set_up_validation_chain(self, debug=True):
-    
         # make validation agent chain
         validation_agent = LLMChain(
             llm=self.chat_model,
@@ -126,23 +129,17 @@ class Agent(object):
             verbose=debug,
             output_key="agent_suggestion",
         )
-        overall_chain = SequentialChain(
-            chains=[travel_agent],
-            input_variables=["query", "format_instructions"],
-            output_variables=["agent_suggestion", "mapping_list"],
-            verbose=debug,
-        )
         
-        return overall_chain
+        return travel_agent
     
     def suggest_travel(self, query):
         #self.logger.info("Validating query")
         t1 = time.time()
-        #self.logger.info(
-        #    "Calling validation (model is {}) on user input".format(
-        #        self.chat_model.model_name
-        #    )
-        #)
+        self.logger.info(
+            "Calling validation (model is {}) on user input".format(
+                self.chat_model.model_name
+            )
+        )
         validation_result = self.validation_chain(
             {
                 "query": query,
@@ -150,15 +147,16 @@ class Agent(object):
             }
         )
 
-        validation_test = validation_result["validation_output"].dict()
+        validation_test = validation_result["validation_output"].model_dump()
         t2 = time.time()
-        self.logger.info("Time to validate request: {}".format(round(t2 - t1, 2)))
-
-        if validation_test["plan_is_valid"] == "0":
+        #self.logger.info("Time to validate request: {}".format(round(t2 - t1, 2)))
+        
+        if validation_test["plan_is_valid"].lower() == "no":
+            self.logger.warning("User request was not valid!")
             print("\n######\n Travel plan is not valid \n######\n")
             print(validation_test["updated_request"])
             return None, None, validation_result
-        
+
         else:
             # plan is valid
             self.logger.info("Query is valid")
@@ -171,18 +169,12 @@ class Agent(object):
                 )
             )
 
-            agent_result = self.agent_chain(
-                {
-                    "query": query,
-                    "format_instructions": self.mapping_prompt.parser.get_format_instructions(),
-                }
-            )
-    
-secrets = load_secret()
-travel_agent = Agent(open_ai_api_key=secrets["OPENAI_API_KEY"],debug=True)
-query = """제주도를 3일동안 놀러가고 싶어. 한라산은 꼭 방문하고 싶어."""
+            agent_result = self.agent_chain({"query": query})
 
-travel_agent.validate_travel(query)
+            trip_suggestion = agent_result["agent_suggestion"]
+            
+            return trip_suggestion, validation_result
+
 
 class ItineraryTemplate(object):
     def __init__(self):
@@ -198,8 +190,6 @@ class ItineraryTemplate(object):
       사용자의 선호도와 시간대를 고려하고, 제약 조건을 고려할 때 재미있고 실행 가능한 일정을 제공한다.
 
       여정은 명확한 시작 및 종료 위치가 포함된 글머리 기호 목록으로 제공한다.
-      여행에 필요한 교통수단 유형을 반드시 알려줘야 한다.
-      구체적인 출발지와 도착지가 명시되지 않은 경우, 적합하다고 생각되는 장소를 선택하고 구체적인 주소를 적는다.
       출력물은 목록만 작성하고 다른 것은 작성하지 않아야 한다.
     """
 
@@ -218,3 +208,13 @@ class ItineraryTemplate(object):
             [self.system_message_prompt, self.human_message_prompt]
         )
         
+secrets = load_secret()
+travel_agent = Agent(open_ai_api_key=secrets['OPENAI_API_KEY'],debug=True)
+
+query = """
+        제주도에서 3박 4일 여행을 계획하고 있습니다. 한라산을 등반하고 싶고, 제주도의 맛집도 가고 싶습니다.
+        """
+
+a, b = travel_agent.suggest_travel(query)
+print(a)
+print(b)
