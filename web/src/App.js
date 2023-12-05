@@ -35,7 +35,7 @@ const Main = () => {
   const handleDataAvailable = useCallback(async (event) => {
     if (event.data.size > 0) {
       const dataBlob = new Blob([event.data], {
-        type: capturing ? 'video/mp4' : 'audio/mp3'
+        type: capturing ? 'video/webm' : 'audio/webm'
       });
       
       setRecording(false);
@@ -45,11 +45,7 @@ const Main = () => {
       if (!location) throw new Error('위치정보를 가져올 수 없습니다.');
   
       const formData = new FormData();
-      formData.append(
-        'content',
-        dataBlob,
-        capturing ? 'recording.mp4' : 'recording.mp3'
-      );
+      formData.append('content', dataBlob, 'recording.webm');
       formData.append('location', JSON.stringify(location));
 
       try {

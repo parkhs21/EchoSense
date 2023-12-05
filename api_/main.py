@@ -6,7 +6,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"], # 클라이언트 도메인에 대해 CORS 허용
+    allow_origins=["http://localhost:3000/"], # 클라이언트 도메인에 대해 CORS 허용
     allow_credentials=True,
     allow_methods=["*"], # 모든 HTTP 메소드에 대해 CORS 허용
     allow_headers=["*"], # 모든 HTTP 헤더에 대해 CORS 허용
@@ -18,7 +18,7 @@ def read_root():
 
 @app.post("/upload")
 async def upload_file(content: UploadFile = File(...), location: str = Form(...)):
-    file_path = f"uploads/{content.filename}"
+    file_path = f"./{content.filename}"
     with open(file_path, "wb") as file:
         file.write(content.file.read())
 
@@ -30,3 +30,9 @@ async def upload_file(content: UploadFile = File(...), location: str = Form(...)
             "filename": content.filename,
             "location": location_data
             }
+
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="localhost", port=8000, reload=True)
