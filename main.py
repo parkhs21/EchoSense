@@ -3,11 +3,11 @@ import openai
 from openai import OpenAI
 import os
 import requests
-import dotenv
+from dotenv import load_dotenv
 
-dotenv.load_dotenv()
+load_dotenv(dotenv_path=".env")
 
-client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+client = OpenAI(api_key=os.getenv["OPENAI_API_KEY"])
 
 def fetch_customer_profile(user_id):
     #실제 API 호출로 대체 가능//임시로 해놨음...
@@ -41,11 +41,11 @@ def get_place_details(place_id, api_key):
 def call_google_place_api(user_id, place_type, food_preference=None):
     try:
         customer_profile = fetch_customer_profile(user_id)
-        
+        #위치기반 추천
         lat = customer_profile["location"]["lat"]
         lng = customer_profile["location"]["long"]
         
-        API_KEY = os.environ["GOOGLE_PLACES_API_KEY"]
+        API_KEY = os.getenv["GOOGLE_PLACES_API_KEY"]
         LOCATION = f"{lat},{lng}"
         RADIUS = "1000"
         TYPE = place_type
@@ -135,13 +135,13 @@ def provide_user_specific_recommendations(user_input, user_id):
             place_type = json.loads(function_call.arguments)["place_type"]
             places = call_google_place_api(user_id, place_type, food_preferences)
             if places:
-                return f"당신이 관심있을 것 같은 장소는 {' '.join(places)}입니다."
+                return f"제가 추천드리는 장소는 {' '.join(places)}"
             else:
                 return "죄송합니다. 장소를 찾을 수 없습니다."
             
     return "죄송합니다. 요청을 처리할 수 없습니다."
             
 user_id = "user1"
-user_input = "I'm hungry"
+user_input = "비오는 날에는 갈 곳 추천해줘"
 output = provide_user_specific_recommendations(user_input, user_id)
 print(output)
