@@ -1,6 +1,6 @@
 from langchain.retrievers.web_research import WebResearchRetriever
 import os
-from langchain.vectorstores import Chroma 
+from langchain.vectorstores import Chroma
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.chat_models.openai import ChatOpenAI
 from langchain.utilities import GoogleSearchAPIWrapper

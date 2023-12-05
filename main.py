@@ -3,8 +3,11 @@ import openai
 from openai import OpenAI
 import os
 import requests
+from dotenv import load_dotenv
 
-client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+load_dotenv(dotenv_path=".env")
+
+client = OpenAI(api_key=os.getenv["OPENAI_API_KEY"])
 
 def fetch_customer_profile(user_id):
     #실제 API 호출로 대체 가능//임시로 해놨음...
@@ -42,7 +45,7 @@ def call_google_place_api(user_id, place_type, food_preference=None):
         lat = customer_profile["location"]["lat"]
         lng = customer_profile["location"]["long"]
         
-        API_KEY = os.environ["GOOGLE_PLACES_API_KEY"]
+        API_KEY = os.getenv["GOOGLE_PLACES_API_KEY"]
         LOCATION = f"{lat},{lng}"
         RADIUS = "1000"
         TYPE = place_type

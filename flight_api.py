@@ -20,6 +20,4 @@ agent = initialize_agent(
     agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION,
 )
 
-print(agent.run(
-    "2023년 12월에 출발하는 서울에서 미국으로 가는 비행기 중 가장 저렴한 티켓의 가격과 출발 시간을 알려줘"
-))
+agent.run("What is the departure time of the cheapest flight on August 23, 2023 leaving Dallas, Texas before noon to Lincoln, Nebraska?")
