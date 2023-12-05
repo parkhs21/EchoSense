@@ -1,5 +1,6 @@
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
+import json
 
 app = FastAPI()
 
@@ -15,12 +16,17 @@ app.add_middleware(
 def read_root():
     return {"Hello": "World"}
 
-@app.post("/upload-audio")
-async def upload_audio(audioFile: UploadFile = File(...)):
-    file_location = f"uploads/{audioFile.filename}"
-    with open(file_location, "wb") as file:
-        file.write(audioFile.file.read())
+@app.post("/upload")
+async def upload_file(content: UploadFile = File(...), location: str = Form(...)):
+    file_path = f"uploads/{content.filename}"
+    with open(file_path, "wb") as file:
+        file.write(content.file.read())
+
+    location_data = json.loads(location)
     
     # 추가적인 로직
 
-    return {"message": "오디오 파일이 성공적으로 업로드되었습니다.", "filename": audioFile.filename}
+    return {"message": "파일이 성공적으로 업로드되었습니다.",
+            "filename": content.filename,
+            "location": location_data
+            }
