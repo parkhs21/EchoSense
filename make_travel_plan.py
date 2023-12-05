@@ -173,7 +173,7 @@ class Agent(object):
 
             trip_suggestion = agent_result["agent_suggestion"]
             
-            return trip_suggestion, validation_result
+            return trip_suggestion, validation_test
 
 
 class ItineraryTemplate(object):
