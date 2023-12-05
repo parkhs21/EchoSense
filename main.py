@@ -3,9 +3,6 @@ import openai
 from openai import OpenAI
 import os
 import requests
-import dotenv
-
-dotenv.load_dotenv()
 
 client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 
@@ -41,7 +38,7 @@ def get_place_details(place_id, api_key):
 def call_google_place_api(user_id, place_type, food_preference=None):
     try:
         customer_profile = fetch_customer_profile(user_id)
-        #
+        #위치기반 추천
         lat = customer_profile["location"]["lat"]
         lng = customer_profile["location"]["long"]
         
@@ -55,6 +52,9 @@ def call_google_place_api(user_id, place_type, food_preference=None):
         else:
             url = f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?location={LOCATION}&radius={RADIUS}&type={TYPE}&language=ko&key={API_KEY}"
         response = requests.get(url)
+        
+        #장소 기반 추천
+        
         
         if response.status_code == 200:
             results = json.loads(response.content)["results"]
@@ -135,13 +135,13 @@ def provide_user_specific_recommendations(user_input, user_id):
             place_type = json.loads(function_call.arguments)["place_type"]
             places = call_google_place_api(user_id, place_type, food_preferences)
             if places:
-                return f"제가 추천드리는 장소는 {' '.join(places)}입니다."
+                return f"제가 추천드리는 장소는 {' '.join(places)}"
             else:
                 return "죄송합니다. 장소를 찾을 수 없습니다."
             
     return "죄송합니다. 요청을 처리할 수 없습니다."
             
 user_id = "user1"
-user_input = "I'm hungry"
+user_input = "비오는 날에는 갈 곳 추천해줘"
 output = provide_user_specific_recommendations(user_input, user_id)
 print(output)
