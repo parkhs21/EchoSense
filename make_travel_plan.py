@@ -13,7 +13,6 @@ def load_secret():
     
     return {
         "OPENAI_API_KEY": open_ai_key,
-        "GOOGLE_PALM_API_KEY": google_palm_key,
     }
 
 #쿼리의 유효성 검사
@@ -147,7 +146,7 @@ class Agent(object):
             }
         )
 
-        validation_test = validation_result["validation_output"].model_dump()
+        validation_test = validation_result["validation_output"].dict()
         t2 = time.time()
         #self.logger.info("Time to validate request: {}".format(round(t2 - t1, 2)))
         

@@ -14,6 +14,8 @@ from langchain.agents.agent_toolkits.amadeus.toolkit import AmadeusToolkit
 
 toolkit = AmadeusToolkit()
 tools = toolkit.get_tools()
+print(tools)
+print(", ".join([t.name for t in tools]))
 
 from langchain.agents import AgentType, initialize_agent
 from langchain.llms import OpenAI

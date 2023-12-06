@@ -1,4 +1,5 @@
 import requests
+import json
 
 ENDPOINT = "http://localhost:8000"
 
@@ -9,16 +10,16 @@ def prompt_stt(audio_path: str) -> str:
     return response.get("transcript")
 
 def prompt_chat(prompt: str) -> str:
-    location = current_location()
-    detail = "/prompt-chat/invoke"
-    body = {"input": {"text": prompt}}
+    location = json.dumps(current_location())
+    detail = "/prompt-chat"
+    body = {"input": {"text": prompt, "location": location}}
     response = requests.post(ENDPOINT+detail, json=body).json()
     return response.get("output")
 
 def prompt_image(image_path: str, prompt: str) -> str:
-    location = current_location()
+    location = json.dumps(current_location())
     detail = "/upload-image"
-    files = {"content" : open(image_path, "rb"), "prompt": (None, prompt)}
+    files = {"content" : open(image_path, "rb"), "prompt": (None, prompt), "location": (None, location)}
     response = requests.post(ENDPOINT+detail, files=files).json()
     return response.get("output").get("content")
 

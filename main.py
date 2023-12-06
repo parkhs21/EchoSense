@@ -3,11 +3,10 @@ import openai
 from openai import OpenAI
 import os
 import requests
-from dotenv import load_dotenv
+import dotenv
+dotenv.load_dotenv()
 
-load_dotenv(dotenv_path=".env")
-
-client = OpenAI(api_key=os.getenv["OPENAI_API_KEY"])
+client = OpenAI()
 
 def fetch_customer_profile(user_id):
     #실제 API 호출로 대체 가능//임시로 해놨음...

@@ -1,13 +1,15 @@
 from fastapi import UploadFile
 from openai import OpenAI
 from langchain.chat_models import ChatOpenAI
-from langchain.schema.messages import HumanMessage
+from langchain.schema.messages import HumanMessage, SystemMessage
 import os
 import dotenv
 import numpy as np
 import cv2
 import json
 import base64
+from langchain.schema.output_parser import StrOutputParser
+from app.myTool import contentTool, chainTool, agentTool
 dotenv.load_dotenv()
 
 CACHE_DIRECTORY = "./app/cache"
@@ -30,12 +32,12 @@ def prompt_stt(audio_path: str) -> str:
     )
     return transcript
 
-def prompt_image(image_path: str, prompt: str) -> str:
+def prompt_image(image_path: str, prompt: str, location: str) -> str:
     image = cv2.imread(image_path)
     base64_image = encode_image_to_base64(image)
 
     client = ChatOpenAI(model="gpt-4-vision-preview", max_tokens=300)
-    message = HumanMessage(
+    human_message = HumanMessage(
         content=[
             {
                 "type": "text",
@@ -50,7 +52,7 @@ def prompt_image(image_path: str, prompt: str) -> str:
         ]
     )
 
-    response = client.invoke([message])
+    response = client.invoke([human_message])
     return response
 
 def cache_file(content: UploadFile) -> str:
@@ -59,3 +61,12 @@ def cache_file(content: UploadFile) -> str:
     with open(file_path, "wb") as file:
         file.write(content.file.read())
     return file_path
+
+def prompt_chat(input: dict) -> str:
+    data = {
+        "system": input["input"]["location"],
+        "input": input["input"]["text"]
+    }
+    agent = agentTool.agent_executor
+    result = agent.invoke(data)
+    return result["output"]

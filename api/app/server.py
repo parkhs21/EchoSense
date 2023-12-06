@@ -5,6 +5,7 @@ from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from langserve import add_routes
 
+import json
 import dotenv
 dotenv.load_dotenv()
 
@@ -33,14 +34,17 @@ async def upload_file(content: UploadFile = File(...)):
     return {"transcript": transcript}
 
 @app.post("/upload-image")
-async def upload_file(content: UploadFile = File(...), prompt: str = Form(...)):
+async def upload_file(content: UploadFile = File(...), prompt: str = Form(...), location: str = Form(...)):
     file_path = contentTool.cache_file(content)
-    response = contentTool.prompt_image(file_path, prompt)
+    response = contentTool.prompt_image(file_path, prompt, location)
     return {"output": response}
 
+@app.post("/prompt-chat")
+async def prompt_chat(input: dict):
+    response = contentTool.prompt_chat(input)
+    return {"output": response}
 
-add_routes(app, chainTool.chat_chain, path="/prompt-chat")
-# add_routes(app, chainTool.image_chain, path="/prompt-image")
+# add_routes(app, chainTool.chat_chain, path="/prompt-chat")
 
 
 if __name__ == "__main__":
